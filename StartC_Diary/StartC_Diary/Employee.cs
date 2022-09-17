@@ -27,7 +27,7 @@ namespace StartC_Diary
             this.place = place;
         }
 
-        public string Printeres()
+        public string Print()
         {
             return $"{this.id} {this.date:g} {this.fullName} {this.age} {this.growth} {this.birthsday:d} {this.place}";
         }

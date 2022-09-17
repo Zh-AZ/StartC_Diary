@@ -73,8 +73,8 @@ namespace StartC_Diary
                 if (hide == '2') FileAppend();
                 else if (hide == '1')
                 {
-                    Loads();
-                    PrintToConsoles();
+                    Load();
+                    PrintToConsole();
                 }
                 else if (hide == '3') LookingForTime();
                 else if (hide == '4') Sort();
@@ -111,7 +111,7 @@ namespace StartC_Diary
         /// Увеличения пространства для хранения в массиве сотрудников
         /// </summary>
         /// <param name="Flags"></param>
-        private void Resizes(bool Flags)
+        private void Resize(bool Flags)
         {
             if (Flags)
             {
@@ -122,9 +122,9 @@ namespace StartC_Diary
         /// <summary>
         /// Добавление сотрудника
         /// </summary>
-        public void Adds(Employee ConcreteWorkers)
+        public void Add(Employee ConcreteWorkers)
         {
-            this.Resizes(index >= this.employees.Length);
+            this.Resize(index >= this.employees.Length);
             this.employees[index] = ConcreteWorkers;
             index++;
         }
@@ -132,27 +132,31 @@ namespace StartC_Diary
         /// <summary>
         /// Печать в консоль
         /// </summary>
-        public void PrintToConsoles()
+        public void PrintToConsole()
         {
             for (int i = 0; i < index; i++)
             {
-                Console.WriteLine(this.employees[i].Printeres());
+                Console.WriteLine(this.employees[i].Print());
             }
         }
         
         /// <summary>
         /// Загрузка данных из файла
         /// </summary>
-        public void Loads()
+        public void Load()
         {
-            using (StreamReader sr = new StreamReader(this.patch))
+            if (File.Exists(patch) == true)
             {
-                while (!sr.EndOfStream)
+                using (StreamReader sr = new StreamReader(this.patch))
                 {
-                    string[] args = sr.ReadLine().Split('#');
-                    Adds(new Employee(Convert.ToInt32(args[0]), Convert.ToDateTime(args[1]), args[2], Convert.ToInt32(args[3]), Convert.ToInt32(args[4]), Convert.ToDateTime(args[5]), args[6]));
+                    while (!sr.EndOfStream)
+                    {
+                        string[] args = sr.ReadLine().Split('#');
+                        Add(new Employee(Convert.ToInt32(args[0]), Convert.ToDateTime(args[1]), args[2], Convert.ToInt32(args[3]), Convert.ToInt32(args[4]), Convert.ToDateTime(args[5]), args[6]));
+                    }
                 }
             }
+            else Console.WriteLine("Файл еще не создан!");
         }
 
         /// <summary>
@@ -172,7 +176,7 @@ namespace StartC_Diary
             {
                 if (beforeDate <= employees[i].date && employees[i].date <= afterDate.AddDays(1))
                 {
-                    Console.WriteLine(employees[i].Printeres());
+                    Console.WriteLine(employees[i].Print());
                     boole = true;
                 }
             }
@@ -208,7 +212,7 @@ namespace StartC_Diary
                     if (worker == employees[i].id)
                     {
                         int num = i;
-                        Console.WriteLine(employees[i].Printeres());
+                        Console.WriteLine(employees[i].Print());
                         Console.WriteLine("\nЧтобы удалить введите 1");
                         Console.WriteLine("Чтобы изменить введите 2\n");
                         char delete = Console.ReadKey(true).KeyChar;
@@ -281,7 +285,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -290,7 +294,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (+)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -312,7 +316,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -321,7 +325,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (+)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -343,7 +347,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -352,7 +356,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (+)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -374,7 +378,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -383,7 +387,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (-)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -405,7 +409,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -414,7 +418,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (-)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -436,7 +440,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -445,7 +449,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (-)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
@@ -467,7 +471,7 @@ namespace StartC_Diary
                         Console.WriteLine("По возрастанию (+)");
                         foreach (var i in sortedPlus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (chare == minus)
@@ -476,7 +480,7 @@ namespace StartC_Diary
                         Console.WriteLine("По убыванию (-)");
                         foreach (var i in sortedMinus)
                         {
-                            Console.WriteLine(i.Printeres());
+                            Console.WriteLine(i.Print());
                         }
                     }
                     else if (writtens == String.Empty)
