@@ -54,18 +54,18 @@ namespace StartC_Diary
                 }
             }
         }
-
+        
         /// <summary>
         /// Выбор методов 
         /// </summary>
         public void ChooseFile()
         {
+            if (File.Exists(patch) == false) Console.WriteLine("ФАЙЛ ЕЩЕ НЕ СОЗДАН! ЧТОБЫ СОЗДАТЬ НАЧНИТЕ ЗАПОЛНЯТЬ ДАННЫЕ!\n");
             string help_1 = "Для того чтобы заполнить данные введите > 2\nДля того чтобы читать введите > 1";
             string help_2 = help_1 + "\nПоиск по диапазону дат > 3\nДля сортировки > 4\nДля удаления или редактировании > 5";
             string help_3 = help_2 + "\nДля списка команд введите > h\nЧтобы закрыть введите 'n'";
             Console.WriteLine(help_3);
-            bool boolean = true;
-            while (boolean)
+            while (true)
             {
                 Console.WriteLine("\nОжидание команды: ");
                 char hide = Console.ReadKey(true).KeyChar;
@@ -87,7 +87,6 @@ namespace StartC_Diary
                 else if (hide == 'h') Console.WriteLine(help_3);
                 else Console.WriteLine("Неверная команда(!)\n");
             }
-            if (boolean) boolean = false;
             Console.ReadKey();
         }
         
@@ -96,6 +95,10 @@ namespace StartC_Diary
         private string patch;
         int index;
         
+        /// <summary>
+        /// Конструктор для присваивания значений 
+        /// </summary>
+        /// <param name="Patch"></param>
         public Workers(string Patch)
         {
             this.patch = Patch;
@@ -124,19 +127,36 @@ namespace StartC_Diary
         /// </summary>
         public void Add(Employee ConcreteWorkers)
         {
-            this.Resize(index >= this.employees.Length);
-            this.employees[index] = ConcreteWorkers;
-            index++;
+            bool exist = employees.Contains(ConcreteWorkers);
+            if (exist == false)
+            {
+                this.Resize(index >= this.employees.Length);
+                this.employees[index] = ConcreteWorkers;
+                index++;
+                for (int k = 0 + 1; k < employees.Length; k++)
+                {
+                    if (employees[k].id == 0)
+                    {
+                        DeleteEmployee(k);
+                        k--;
+                    }
+                }
+            }
         }
-        
+
         /// <summary>
         /// Печать в консоль
         /// </summary>
         public void PrintToConsole()
         {
-            for (int i = 0; i < index; i++)
+            for (int i = 0; i < employees.Length; i++)
             {
                 Console.WriteLine(this.employees[i].Print());
+                if (employees[i].id == 0)
+                {
+                    DeleteEmployee(i);
+                    i--;
+                }
             }
         }
         
@@ -195,7 +215,6 @@ namespace StartC_Diary
             Console.WriteLine("\nЧтобы выйти назад оставьте строку пустой");
             for ( ; ; )
             {
-                string patch = @"d:\Employees.txt";
                 Console.WriteLine("\nВведите ID сотрудника: ");
                 string work = Console.ReadLine();
                 if (work == String.Empty)
@@ -204,52 +223,77 @@ namespace StartC_Diary
                 }
                 int worker = int.Parse(work);
                 Console.SetCursorPosition(0, Console.CursorTop - 1);
-                char del = '1';
-                char change = '2';
-                string[] patches = File.ReadAllLines(patch);
                 for (int i = 0; i < employees.Length; i++)
                 {
                     if (worker == employees[i].id)
                     {
-                        int num = i;
                         Console.WriteLine(employees[i].Print());
                         Console.WriteLine("\nЧтобы удалить введите 1");
                         Console.WriteLine("Чтобы изменить введите 2\n");
                         char delete = Console.ReadKey(true).KeyChar;
-                        if (delete == del)
+                        if (delete == '1')
                         {
                             for (int j = 0; j < diaryses.Count; j++)
                             {
-                                if (j == num)
+                                if (j == i)
                                 {
+                                    DeleteEmployee(i);
                                     diaryses.RemoveAt(j);
                                     Console.WriteLine("Удалено");
                                     File.WriteAllLines(patch, diaryses);
                                 }
                             }
                         }
-                        else if (delete == change)
+                        else if (delete == '2')
                         {
                             for (int j = 0; j < diaryses.Count; j++)
                             {
-                                if (j == num)
+                                if (j == i)
                                 {
                                     FileAppend();
-                                    Console.WriteLine("Изменено");
                                     string[] readText = File.ReadAllLines(patch);
                                     diaryses[j] = String.Format(readText[^1]);
                                     for (int k = 0; k < readText.Length; k++)
                                     {
-                                        readText[k] = String.Empty;
+                                        readText[k] = null;
                                     }
                                     File.WriteAllLines(patch, diaryses);
+                                    Load();
+                                    for (int r = j; r < employees.Length - 1; r++)
+                                    {
+                                        employees[r] = employees[r + 1];
+                                        employees[r] = employees[^1];
+                                    }
+                                    Array.Resize(ref employees, employees.Length - 1);
+                                    Console.WriteLine("Изменено");
+                                    for (int k = 0 + 1; k < employees.Length; k++)
+                                    {
+                                        if (employees[k].id == 0)
+                                        {
+                                            DeleteEmployee(k);
+                                            k--;    
+                                        }
+                                    }
+                                    Load();
                                 }
                             }
                         }
                     }
                 }
             }
-            
+        }
+        
+        /// <summary>
+        /// Удаление сотрудника
+        /// </summary>
+        /// <param name="n"></param>
+        public void DeleteEmployee(int n)
+        {
+            for (int i = n + 1; i < employees.Length; i++)
+            {
+                employees[i - 1] = employees[i];
+            }
+            Array.Resize(ref employees, employees.Length - 1);
         }
         
         /// <summary>
@@ -291,7 +335,7 @@ namespace StartC_Diary
                     else if (chare == minus)
                     {
                         var sortedMinus = employees.OrderByDescending(e => e.id);
-                        Console.WriteLine("По убыванию (+)");
+                        Console.WriteLine("По убыванию (-)");
                         foreach (var i in sortedMinus)
                         {
                             Console.WriteLine(i.Print());
