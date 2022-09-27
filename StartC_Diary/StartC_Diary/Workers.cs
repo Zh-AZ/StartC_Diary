@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -118,7 +120,7 @@ namespace StartC_Diary
         {
             if (Flags)
             {
-                Array.Resize(ref this.employees, this.employees.Length * 2);
+                Array.Resize(ref this.employees, this.employees.Length * 10);
             }
         }
 
@@ -215,6 +217,7 @@ namespace StartC_Diary
             Console.WriteLine("\nЧтобы выйти назад оставьте строку пустой");
             for ( ; ; )
             {
+                Load();
                 Console.WriteLine("\nВведите ID сотрудника: ");
                 string work = Console.ReadLine();
                 if (work == String.Empty)
@@ -246,39 +249,53 @@ namespace StartC_Diary
                         }
                         else if (delete == '2')
                         {
-                            for (int j = 0; j < diaryses.Count; j++)
+
+                            for (int j = 0; j < employees.Length; j++)
                             {
                                 if (j == i)
                                 {
-                                    FileAppend();
-                                    string[] readText = File.ReadAllLines(patch);
-                                    diaryses[j] = String.Format(readText[^1]);
+                                    FileAppend();                                                    //FileAppend() добавляет запись только в конец списка - массива
+                                    string[] readText = File.ReadAllLines(patch);                    //Загрузка записей из файла в массив
+                                    diaryses[j] = String.Format(readText[^1]);                       //В указанную позицию списка присваивается конец из массива
                                     for (int k = 0; k < readText.Length; k++)
                                     {
-                                        readText[k] = null;
+                                        readText[k] = null;                                          //А конец массива будет null 
                                     }
-                                    File.WriteAllLines(patch, diaryses);
-                                    Load();
-                                    for (int r = j; r < employees.Length - 1; r++)
+                                    File.WriteAllLines(patch, diaryses);                             //И в файл записывается все что есть в списке
+                                    Load();                                                          //Загрузка данных из файла
+
+                                    for (int r = j; r < employees.Length - 1; r++)                   //Перемещение элемента из массива employees влево начиная с указанного индекса
                                     {
-                                        employees[r] = employees[r + 1];
-                                        employees[r] = employees[^1];
+                                        employees[r] = employees[r + 1];                             //Возвращение всех элементов без удаленного
+                                        employees[r] = employees[^1];                                //Вместо удаленного ставится запись в конце, которая была добавлена методом FileAppend()
                                     }
-                                    Array.Resize(ref employees, employees.Length - 1);
-                                    Console.WriteLine("Изменено");
-                                    for (int k = 0 + 1; k < employees.Length; k++)
+                                    Array.Resize(ref employees, employees.Length - 1);               //Уменьшение размера массива чтобы удалить запись с указанным индексом
+                                    for (int k = 0 + 1; k < employees.Length; k++)                   //Удаление всех похожих элементов. Так как в конец массива присваивается null, в employees это будет 0
                                     {
                                         if (employees[k].id == 0)
                                         {
                                             DeleteEmployee(k);
-                                            k--;    
+                                            k--;
                                         }
                                     }
+                                    Console.WriteLine("Изменено");
                                     Load();
                                 }
                             }
                         }
                     }
+                    //for (int j = 0; j < diaryses.Count; j++)
+                    //{
+                    //    string[] readText = File.ReadAllLines(patch);
+                    //    diaryses[i] = String.Format(readText[^1]);
+                    //    for (int k = 0; k < readText.Length; k++)
+                    //    {
+                    //        readText[k] = null;
+                    //    }
+                    //    File.WriteAllLines(patch, diaryses);
+                    //    Load();
+                    //    Console.WriteLine("Изменено");
+                    //}
                 }
             }
         }
