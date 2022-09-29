@@ -52,6 +52,7 @@ namespace StartC_Diary
                         ID += $"{place}";
 
                         sw.WriteLine(ID);
+                        Array.Resize<Employee>(ref this.employees, this.employees.Length * 10);
                     } while (key != '2');
                 }
             }
@@ -93,7 +94,8 @@ namespace StartC_Diary
         }
         
         private Employee[] employees;
-        private readonly List<string> diaryses = new List<string>();
+        private List<string> diaryses = new List<string>();
+        private List<Employee> emplist = new List<Employee>();
         private string patch;
         int index;
         
@@ -110,15 +112,19 @@ namespace StartC_Diary
             {
                 diaryses = File.ReadAllLines(patch).ToList();
             }
+            for (int i = 0; i < employees.Length; i++)
+            {
+                emplist.Add(employees[i]);
+            }
         }
         
         /// <summary>
         /// Увеличения пространства для хранения в массиве сотрудников
         /// </summary>
-        /// <param name="Flags"></param>
-        private void Resize(bool Flags)
+        /// <param name="Flag"></param>
+        public void Resize(bool Flag)
         {
-            if (Flags)
+            if (Flag)
             {
                 Array.Resize(ref this.employees, this.employees.Length * 10);
             }
@@ -129,19 +135,21 @@ namespace StartC_Diary
         /// </summary>
         public void Add(Employee ConcreteWorkers)
         {
+            Array.Resize<Employee>(ref this.employees, this.employees.Length + 1);
             bool exist = employees.Contains(ConcreteWorkers);
             if (exist == false)
             {
                 this.Resize(index >= this.employees.Length);
+                this.Resize(index >= this.emplist.Count);
                 this.employees[index] = ConcreteWorkers;
                 index++;
-                for (int k = 0 + 1; k < employees.Length; k++)
+            }
+            for (int k = 0 + 1; k < employees.Length; k++)
+            {
+                if (employees[k].id == 0)
                 {
-                    if (employees[k].id == 0)
-                    {
-                        DeleteEmployee(k);
-                        k--;
-                    }
+                    DeleteEmployee(k);
+                    k--;
                 }
             }
         }
@@ -236,10 +244,11 @@ namespace StartC_Diary
                         char delete = Console.ReadKey(true).KeyChar;
                         if (delete == '1')
                         {
-                            for (int j = 0; j < diaryses.Count; j++)
+                            for (int j = 0; j < employees.Length; j++)
                             {
                                 if (j == i)
                                 {
+                                    diaryses = File.ReadAllLines(patch).ToList();
                                     DeleteEmployee(i);
                                     diaryses.RemoveAt(j);
                                     Console.WriteLine("Удалено");
@@ -254,23 +263,41 @@ namespace StartC_Diary
                             {
                                 if (j == i)
                                 {
-                                    FileAppend();                                         //FileAppend() добавляет запись только в конец списка - массива
-                                    string[] readText = File.ReadAllLines(patch);         //Загрузка записей из файла в массив
-                                    diaryses[j] = String.Format(readText[^1]);            //В указанную позицию списка присваивается конец из массива
-                                    for (int k = 0; k < readText.Length; k++)
-                                    {
-                                        readText[k] = null;                               //А конец массива будет null 
-                                    }
-                                    File.WriteAllLines(patch, diaryses);                  //И в файл записывается все что есть в списке
-                                    Load();                                               //Загрузка данных из файла
+                                    FileAppend();                                         
+                                    diaryses = File.ReadAllLines(patch).ToList();
+                                    string[] readText = File.ReadAllLines(patch);         
+                                    diaryses[j] = String.Format(readText[^1]);            
+                                    diaryses.RemoveAt(diaryses.Count - 1);
+                                    File.WriteAllLines(patch, diaryses);                  
+                                    Load();                                               
 
-                                    for (int r = j; r < employees.Length - 1; r++)       //Перемещение элемента из массива employees влево начиная с указанного индекса
+                                    for (int r = j; r < employees.Length - 1; r++)       
                                     {
-                                        employees[r] = employees[r + 1];                 //Возвращение всех элементов без удаленного
-                                        employees[r] = employees[^1];                    //Вместо удаленного ставится запись в конце, которая была добавлена методом FileAppend()
+                                        employees[r] = employees[r + 1];                 
+                                        employees[r] = employees[^1];                    
                                     }
-                                    Array.Resize(ref employees, employees.Length - 1);   //Уменьшение размера массива чтобы удалить запись с указанным индексом
-                                    for (int k = 0 + 1; k < employees.Length; k++)       //Удаление всех похожих элементов. Так как в конец массива присваивается null, в employees это будет 0
+                                    Array.Resize(ref employees, employees.Length - 1);   
+                                    Array.Resize<Employee>(ref this.employees, this.employees.Length * 10);
+                                    for (int r = 0; r < emplist.Count - 1; r++)
+                                    {
+                                        for (int q = r + 1; q < emplist.Count - 1; q++)
+                                        {
+                                            if (emplist[r].id == emplist[q].id)
+                                            {
+                                                emplist.RemoveAt(q);
+                                                q--;
+                                            }
+                                        }
+                                    }
+                                    for (int t = 0; t < emplist.Count; t++)
+                                    {
+                                        if (emplist[t].id == 0)
+                                        {
+                                            emplist.RemoveAt(t);
+                                        }
+                                        employees = emplist.ToArray();
+                                    }
+                                    for (int k = 0 + 1; k < employees.Length; k++)
                                     {
                                         if (employees[k].id == 0)
                                         {
